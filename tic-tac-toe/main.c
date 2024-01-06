@@ -39,23 +39,29 @@ void update_board(char (*board_data)[3], int *coords, char player) {
 
 char check_winner(char (*board_data)[3], char *winner) {
   // Check if all columns have same characters.
+  printf("Checking winner\n");
   for (int i = 0; i < 3; i++) {
-    if (board_data[0][i] == board_data[1][i] == board_data[2][i]) {
+    printf("Checking column %c\n", board_data[0][i]);
+    if (board_data[0][i] == board_data[1][i] &&
+        board_data[1][i] == board_data[2][i]) {
       *winner = board_data[0][i];
     }
   }
   // Check if all rows have same characters.
   for (int i = 0; i < 3; i++) {
-    if (board_data[i][0] == board_data[i][1] == board_data[i][2]) {
+    if (board_data[i][0] == board_data[i][1] &&
+        board_data[i][1] == board_data[i][2]) {
       *winner = board_data[i][0];
     }
   }
 
   // Check if diagonals are equal
-  if (board_data[0][0] == board_data[1][1] == board_data[2][2]) {
+  if (board_data[0][0] == board_data[1][1] &&
+      board_data[1][1] == board_data[2][2]) {
     *winner = board_data[1][1];
   }
-  if (board_data[0][2] == board_data[1][1] == board_data[2][0]) {
+  if (board_data[0][2] == board_data[1][1] &&
+      board_data[1][1] == board_data[2][0]) {
     *winner = board_data[1][1];
   }
   if (*winner == 'O') {
@@ -93,6 +99,19 @@ void player_move(char (*board_data)[3], char *winner, int *reserved_locations,
     /* code */
   }
 }
+void computer_move(char (*board_data)[3], char *winner, int *reserved_locations,
+                   int size) {
+  int exit = 0;
+  display_board(board_data);
+  // * TODO: Fix computer choosing already existing location
+  int computer_location = ai_location(reserved_locations, size);
+
+  int *coords = get_position(computer_location, COLUMNS);
+  update_board(board_data, coords, 'O');
+  check_winner(board_data, winner);
+  /* code */
+}
+
 /*Main Function*/
 int main() {
   int player_location;
@@ -109,10 +128,13 @@ int main() {
   //   Keep track of the locations which are already filled.
   int reserved_locations[9] = {-1, -1, -1, -1, -1, -1, -1, -1, -1};
 
-  while (game_over != 1 || !winner) {
+  while (winner != 'X' || winner != 'O') {
+    printf("Winner in main func %c\n", winner);
     player_move(board_data, &winner, reserved_locations,
                 sizeof(reserved_locations) / sizeof(reserved_locations[0]));
     // * TODO : Implement Computer Move Functionality
+    computer_move(board_data, &winner, reserved_locations,
+                  sizeof(reserved_locations) / sizeof(reserved_locations[0]));
   }
 
   return 0;
